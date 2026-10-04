@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentFlow — Autonomous Multi-Tool AI Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0d14;
+      --bg-secondary: #101522;
+      --bg-card: #151c2d;
+      --bg-card-hover: #1b243b;
+      --border-color: #232d46;
+      --border-focus: #4361ee;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent: #4361ee;
+      --accent-glow: rgba(67, 97, 238, 0.25);
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    header {
+      background: rgba(16, 21, 34, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.85rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #4361ee, #06b6d4);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .header-pills {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      padding: 0.3rem 0.65rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .pill:hover {
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .pill-status {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: var(--accent-emerald);
+      box-shadow: 0 0 8px var(--accent-emerald);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 980px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 7.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Welcome Hero */
+    .hero {
+      text-align: center;
+      padding: 2.5rem 1rem 1.5rem 1rem;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.8rem;
+      background: rgba(67, 97, 238, 0.12);
+      border: 1px solid rgba(67, 97, 238, 0.3);
+      color: #818cf8;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 9999px;
+      margin-bottom: 1rem;
+    }
+
+    .hero-title {
+      font-size: 2.1rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, #60a5fa, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      max-width: 620px;
+      margin: 0 auto 1.5rem auto;
+      line-height: 1.5;
+    }
+
+    /* Tool Showcase Cards */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.1rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .tool-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(67, 97, 238, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .tool-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .tool-icon {
+      font-size: 1.25rem;
+    }
+
+    .tool-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .tool-desc {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      margin-bottom: 0.6rem;
+    }
+
+    .tool-sample {
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+      color: #93c5fd;
+      border-left: 2px solid var(--accent);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Chat Messages Stream */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .message {
+      display: flex;
+      gap: 0.85rem;
+      animation: messageSlide 0.3s ease-out;
+    }
+
+    .message-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .message.user .message-avatar {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .message.agent .message-avatar {
+      background: linear-gradient(135deg, #4361ee, #06b6d4);
+      color: #fff;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .message-content-wrapper {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .message.user .message-bubble {
+      background: rgba(37, 99, 235, 0.15);
+      border: 1px solid rgba(37, 99, 235, 0.35);
+      padding: 0.85rem 1.15rem;
+      border-radius: 12px;
+      display: inline-block;
+      color: var(--text-primary);
+      font-size: 0.93rem;
+      line-height: 1.5;
+    }
+
+    .message.agent .message-bubble {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      line-height: 1.6;
+      font-size: 0.93rem;
+    }
+
+    .message-bubble p {
+      margin-bottom: 0.7rem;
+    }
+
+    .message-bubble p:last-child {
+      margin-bottom: 0;
+    }
+
+    .message-bubble ul, .message-bubble ol {
+      margin: 0.5rem 0 0.8rem 1.4rem;
+    }
+
+    .message-bubble li {
+      margin-bottom: 0.35rem;
+    }
+
+    .message-bubble strong {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* Meta Badges */
+    .meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.75rem;
+    }
+
+    .badge-tool {
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: #22d3ee;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .badge-metric {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+
+    /* Trace Accordion */
+    .trace-details {
+      margin-top: 0.85rem;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 0.8rem;
+    }
+
+    .trace-summary {
+      padding: 0.5rem 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-secondary);
+      font-weight: 500;
+      user-select: none;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .trace-summary:hover {
+      color: var(--text-primary);
+    }
+
+    .trace-body {
+      padding: 0.75rem 0.85rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .trace-step {
+      background: rgba(255, 255, 255, 0.02);
+      padding: 0.5rem 0.7rem;
+      border-radius: 6px;
+      border-left: 2px solid var(--accent);
+    }
+
+    .trace-step-header {
+      display: flex;
+      justify-content: space-between;
+      color: #93c5fd;
+      margin-bottom: 0.3rem;
+    }
+
+    .trace-step-content {
+      color: var(--text-secondary);
+      word-break: break-word;
+      line-height: 1.4;
+    }
+
+    /* Loading Spinner */
+    .thinking-bubble {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(67, 97, 238, 0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* Bottom Input Bar */
+    .input-dock {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 13, 20, 0.92);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border-color);
+      padding: 1rem 1.5rem 1.25rem 1.5rem;
+      z-index: 40;
+    }
+
+    .input-wrapper {
+      max-width: 980px;
+      margin: 0 auto;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 0.4rem 0.5rem 0.4rem 1.1rem;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .chat-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+
+    .chat-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .send-btn {
+      background: linear-gradient(135deg, #4361ee, #2563eb);
+      color: #fff;
+      border: none;
+      outline: none;
+      padding: 0.65rem 1.2rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+    }
+
+    .send-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes messageSlide {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <a href="/" class="brand">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <div class="brand-title">AgentFlow</div>
+        <div class="brand-subtitle">Autonomous Multi-Tool AI Agent</div>
+      </div>
+    </a>
+    <div class="header-pills">
+      <div class="pill">
+        <span class="pill-status"></span>
+        <span>Operational</span>
+      </div>
+      <a href="/docs" target="_blank" class="pill">
+        <span>📖 Swagger API Docs</span>
+      </a>
+      <a href="/health" target="_blank" class="pill">
+        <span>🩺 Health Check</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Chat & Showcase Workspace -->
+  <main>
+    <div id="hero" class="hero">
+      <div class="hero-badge">⚡ Production-Grade AI Agent Engine</div>
+      <h1 class="hero-title">Intelligent Reasoning with<br><span>Live Multi-Tool Execution</span></h1>
+      <p class="hero-desc">
+        Equipped with AST-validated read-only SQLite queries, isolated subprocess Python math calculations, and resilient DuckDuckGo web search.
+      </p>
+
+      <div class="tools-grid">
+        <div class="tool-card" onclick="setInput('What are our top 3 best-selling products in the database and their total revenue?')">
+          <div class="tool-header">
+            <span class="tool-icon">🗄️</span>
+            <span class="tool-name">SQL Database</span>
+          </div>
+          <div class="tool-desc">AST-guarded 4-table join on customers, products, orders, and sales records.</div>
+          <div class="tool-sample">Top 3 best-selling products & revenue</div>
+        </div>
+
+        <div class="tool-card" onclick="setInput('Calculate 2 to the power of 32 minus 1 using Python, then check if it is prime.')">
+          <div class="tool-header">
+            <span class="tool-icon">🐍</span>
+            <span class="tool-name">Python Sandbox</span>
+          </div>
+          <div class="tool-desc">Isolated subprocess environment with network socket blocking and 5s timeout.</div>
+          <div class="tool-sample">Calculate 2^32 - 1 & check prime</div>
+        </div>
+
+        <div class="tool-card" onclick="setInput('Search the web for latest breakthroughs in quantum computing chips.')">
+          <div class="tool-header">
+            <span class="tool-icon">🌐</span>
+            <span class="tool-name">Web Search</span>
+          </div>
+          <div class="tool-desc">DuckDuckGo live lookup with rate-limit retry backoff and snippet compression.</div>
+          <div class="tool-sample">Latest quantum computing chips</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Chat Conversation -->
+    <div id="chat-stream" class="chat-container"></div>
+  </main>
+
+  <!-- Fixed Bottom Input Dock -->
+  <div class="input-dock">
+    <div class="input-wrapper">
+      <input 
+        id="user-input" 
+        type="text" 
+        class="chat-input" 
+        placeholder="Ask AgentFlow about your database, run Python calculations, or search the web..."
+        autocomplete="off"
+        onkeydown="handleKey(event)"
+      >
+      <button id="send-button" class="send-btn" onclick="sendQuery()">
+        <span>Send</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const chatStream = document.getElementById('chat-stream');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-button');
+    const hero = document.getElementById('hero');
+
+    function setInput(text) {
+      userInput.value = text;
+      userInput.focus();
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendQuery();
+      }
+    }
+
+    function formatText(text) {
+      if (!text) return '';
+      // Escape HTML
+      let escaped = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      
+      // Basic markdown: bold, lists, and linebreaks
+      escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      escaped = escaped.replace(/^\* (.*$)/gim, '<li>$1</li>');
+      escaped = escaped.replace(/^\d+\.\s+(.*$)/gim, '<li>$1</li>');
+      escaped = escaped.replace(/<li>.*<\/li>/s, match => `<ul>${match}</ul>`);
+      escaped = escaped.replace(/\n\n/g, '</p><p>');
+      escaped = escaped.replace(/\n/g, '<br>');
+      return `<p>${escaped}</p>`;
+    }
+
+    async function sendQuery() {
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      // Hide hero on first message
+      if (hero) hero.style.display = 'none';
+
+      userInput.value = '';
+      userInput.disabled = true;
+      sendBtn.disabled = true;
+
+      // Append User Bubble
+      const userDiv = document.createElement('div');
+      userDiv.className = 'message user';
+      userDiv.innerHTML = `
+        <div class="message-avatar">👤</div>
+        <div class="message-content-wrapper">
+          <div class="message-bubble">${message}</div>
+        </div>
+      `;
+      chatStream.appendChild(userDiv);
+
+      // Append Agent Loading Indicator
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'message agent';
+      loadingDiv.id = 'agent-loading';
+      loadingDiv.innerHTML = `
+        <div class="message-avatar">⚡</div>
+        <div class="message-content-wrapper">
+          <div class="message-bubble">
+            <div class="thinking-bubble">
+              <div class="spinner"></div>
+              <span>AgentFlow is reasoning and coordinating tools...</span>
+            </div>
+          </div>
+        </div>
+      `;
+      chatStream.appendChild(loadingDiv);
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+      try {
+        const response = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: message })
+        });
+
+        const data = await response.json();
+
+        // Remove loading spinner
+        const loader = document.getElementById('agent-loading');
+        if (loader) loader.remove();
+
+        // Render Agent Response
+        const agentDiv = document.createElement('div');
+        agentDiv.className = 'message agent';
+
+        // Badges for tools used
+        let toolsBadges = '';
+        if (data.tools_used && data.tools_used.length > 0) {
+          toolsBadges = data.tools_used.map(tool => {
+            let icon = '🔧';
+            if (tool === 'sql_query') icon = '🗄️';
+            if (tool === 'execute_python') icon = '🐍';
+            if (tool === 'web_search') icon = '🌐';
+            return `<span class="badge-tool">${icon} ${tool}</span>`;
+          }).join(' ');
+        } else {
+          toolsBadges = `<span class="badge-metric">Direct Answer</span>`;
+        }
+
+        // Metrics badges
+        const latencyBadge = `<span class="badge-metric">⏱️ ${Math.round(data.execution_time_ms || 0)}ms</span>`;
+        let costBadge = '';
+        if (data.token_metrics && data.token_metrics.estimated_cost_usd !== undefined) {
+          costBadge = `<span class="badge-metric">💵 $${data.token_metrics.estimated_cost_usd.toFixed(5)}</span>`;
+        }
+
+        // Trace steps accordion
+        let traceSection = '';
+        if (data.trace && data.trace.length > 0) {
+          const stepItems = data.trace.map(s => `
+            <div class="trace-step">
+              <div class="trace-step-header">
+                <strong>Step ${s.step_index}: ${s.tool_name}</strong>
+                <span>${Math.round(s.execution_time_ms)}ms</span>
+              </div>
+              <div class="trace-step-content">
+                <div><em>Input:</em> ${s.input_summary || '-'}</div>
+                <div><em>Result:</em> ${s.output_summary || '-'}</div>
+              </div>
+            </div>
+          `).join('');
+
+          traceSection = `
+            <details class="trace-details">
+              <summary class="trace-summary">
+                <span>🔍 View Safe Tool Execution Trace (${data.trace.length} step${data.trace.length > 1 ? 's' : ''})</span>
+                <span>▾</span>
+              </summary>
+              <div class="trace-body">
+                ${stepItems}
+              </div>
+            </details>
+          `;
+        }
+
+        agentDiv.innerHTML = `
+          <div class="message-avatar">⚡</div>
+          <div class="message-content-wrapper">
+            <div class="message-bubble">
+              ${formatText(data.answer)}
+              <div class="meta-bar">
+                ${toolsBadges}
+                ${latencyBadge}
+                ${costBadge}
+              </div>
+              ${traceSection}
+            </div>
+          </div>
+        `;
+        chatStream.appendChild(agentDiv);
+
+      } catch (err) {
+        const loader = document.getElementById('agent-loading');
+        if (loader) loader.remove();
+
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'message agent';
+        errorDiv.innerHTML = `
+          <div class="message-avatar" style="background:#ef4444;">⚠️</div>
+          <div class="message-content-wrapper">
+            <div class="message-bubble" style="border-color:#ef4444;">
+              <p><strong>Error communicating with AgentFlow API:</strong> ${err.message}</p>
+            </div>
+          </div>
+        `;
+        chatStream.appendChild(errorDiv);
+      } finally {
+        userInput.disabled = false;
+        sendBtn.disabled = false;
+        userInput.focus();
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }
+    }
+  </script>
+</body>
+</html>

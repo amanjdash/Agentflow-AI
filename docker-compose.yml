@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  agentflow:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agentflow-agent
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
+      - GEMINI_TEMPERATURE=${GEMINI_TEMPERATURE:-0.1}
+      - DATABASE_PATH=/app/data/agentflow.db
+      - MAX_AGENT_ITERATIONS=8
+      - MAX_TOOL_CALLS=12
+      - MAX_REQUEST_TIME_SECONDS=60.0
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+    # Security options: non-root, read-only root where appropriate, drop capabilities
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      # Mount persistent SQLite data volume
+      - agentflow_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  agentflow_data:
+    driver: local
